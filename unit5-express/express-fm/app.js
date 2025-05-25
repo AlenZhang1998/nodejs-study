@@ -1,9 +1,10 @@
 // 引入express模块
 const express = require('express');
-const fs = require('fs');
-const { promisify } = require('util');
-const readFile = promisify(fs.readFile);
-const writeFile = promisify(fs.writeFile);
+// const fs = require('fs');
+// const { promisify } = require('util');
+// const readFile = promisify(fs.readFile);
+// const writeFile = promisify(fs.writeFile);
+const db = require('./db.js')
 
 // 创建服务器
 const app = express();
@@ -23,8 +24,8 @@ app.use(express.json())
 // })
 app.get('/', async (req, res) => {
   try {
-    const back = await readFile('./db.json', 'utf-8');
-    res.send(JSON.parse(back).users);
+    const back = await db.getDb();
+    res.send(back);
   } catch (error) {
     res.status(500).json({error})
   }
@@ -38,8 +39,8 @@ app.post('/', async (req, res) => {
       msg: '请求参数错误'
     })
   }
-  let back = await readFile('./db.json', 'utf-8');
-  let jsonObj = JSON.parse(back)
+  let back = await db.getDb();
+  let jsonObj = back
   // 给输入的用户信息添加个id
   body.id = jsonObj.users[jsonObj.users.length - 1].id + 1
   jsonObj.users.push(body)
@@ -47,7 +48,7 @@ app.post('/', async (req, res) => {
 
   // 写入文件
   try {
-    const w = await writeFile('./db.json', JSON.stringify(jsonObj));
+    const w = await db.saveDb(jsonObj);
     if(!w) {
       res.status(200).send({
         msg: '添加成功'
