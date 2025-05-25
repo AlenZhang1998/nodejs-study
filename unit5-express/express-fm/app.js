@@ -59,6 +59,36 @@ app.post('/', async (req, res) => {
   }
 })
 
+app.put('/:id', async (req, res) => {
+  console.log(req.params,req.body);
+  try {
+    let userInfo = await db.getDb();
+    let userId = Number(req.params.id)
+    let user = userInfo.users.find(item => item.id === userId)
+    if (!user) {
+      res.status(403).json({
+        code: 403,
+        msg: '用户不存在'
+      })
+    }
+    // res.send(user)
+    // 修改user
+    const body = req.body
+    user.username = body.username ? body.username : user.username
+    user.age = body.age? body.age : user.age
+    userInfo.users[userId - 1] = user
+
+    let w = await db.saveDb(userInfo)
+    if (!w) {
+      res.status(201).send({
+        msg: '修改成功'
+      })
+    }
+  } catch (error) {
+    res.status(500).json({error})
+  }
+})
+
 app.listen(4444, () => {
   console.log('http://127.0.0.1:4444, 服务器启动成功');
 })

@@ -1,9 +1,1 @@
-{
-  "users": [
-    { "id": 1, "username": "Monica", "age": "22" },
-    { "id": 2, "username": "Alen", "age": "26" },
-    { "username": "Xi Jingpiing", "age": 72, "id": 3 },
-    { "username": "cc", "age": 33, "id": 4 }
-  ],
-  "video": []
-}
+{"users":[{"id":1,"username":"Monica","age":"22"},{"id":2,"username":"Alen'","age":"27"},{"username":"Xi Jingpiing","age":72,"id":3},{"username":"cc","age":33,"id":4}],"video":[]}
