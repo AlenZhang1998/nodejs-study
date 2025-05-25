@@ -6,6 +6,8 @@ const readFile = promisify(fs.readFile);
 
 // 创建服务器
 const app = express();
+// app.use(express.urlencoded())
+app.use(express.json())
 
 // 监听请求
 // app.get('/', (req, res) => {
@@ -25,6 +27,13 @@ app.get('/', async (req, res) => {
   } catch (error) {
     res.status(500).json({err})
   }
+})
+
+app.post('/', async (req, res) => {
+  console.log(req.headers);
+  console.log(req.query);
+  console.log(req.body);
+  res.send('post请求');
 })
 
 app.listen(4444, () => {
