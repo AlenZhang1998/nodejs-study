@@ -1,15 +1,8 @@
 {
   "users": [
-    {
-      "id": 1,
-      "username": "Monica",
-      "age": "22"
-    },
-    {
-      "id": 2,
-      "username": "Alen",
-      "age": "26"
-    }
+    { "id": 1, "username": "Monica", "age": "22" },
+    { "id": 2, "username": "Alen", "age": "26" },
+    { "username": "Xi Jingpiing", "age": 72, "id": 3 }
   ],
   "video": []
 }
