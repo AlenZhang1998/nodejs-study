@@ -1,6 +1,15 @@
-#!/usr/bin/env node
+#! /usr/bin/env node
 
-// 表示当前文件是调用系统环境变量里面node脚本来执行的
-// console.log('mycli');
+const { program } = require('commander')
 
-console.log(process.argv[2]); // --help
+const myhelp = require('../lib/core/help')
+myhelp(program)
+
+const mycommander = require('../lib/core/mycommander')
+mycommander(program)
+
+
+
+program.parse(process.argv)
+
+console.log('Alen',process.argv)
