@@ -11,5 +11,3 @@ mycommander(program)
 
 
 program.parse(process.argv)
-
-console.log('Alen',process.argv)
