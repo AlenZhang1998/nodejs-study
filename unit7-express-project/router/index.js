@@ -9,6 +9,7 @@ router.get('/', (req, res) => {
 
 router.get('/user', (req, res) => {
   console.log(111,req.method)
+  JSON.parse('(')
   res.send('/user')
 })
 
