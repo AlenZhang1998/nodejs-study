@@ -13,4 +13,13 @@ router.get('/user', (req, res) => {
   res.send('/user')
 })
 
+// 路由链式调用
+router.get('/list', (req, res) => {
+  console.log(req.methods)
+  res.send('/video-list')
+}).get('/username', (req, res) => {
+  console.log(req.methods)
+  res.send('/user')
+})
+
 module.exports = router

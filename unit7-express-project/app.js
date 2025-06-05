@@ -6,22 +6,27 @@ const router = require('./router/index')
 
 const PORT = process.env.PORT || 3000
 
-// 路由级别中间件
-
-// app.use(router)
-app.use('/v1', router)
-
-// 容错处理
-app.use((req, res, next) => {
-  // console.log(err)
-  res.status(404).send('404 Not Found! ')
+// app.all不匹配路由方法(不区分get\post等)
+app.all('/xx', (req, res, next) => {
+  res.send('xx')
 })
 
-// 错误处理中间件
-app.use((err, req, res, next) => {
-  console.log(err)
-  res.status(500).send('service Error')
+// ?前面为可选字符 /uer也可以
+app.get('/us?er', (req, res) => {
+  res.send(`${req.method}---${req.url}`)
 })
+
+app.get('/user/:id/video/:vid', (req, res) => {
+  console.log(req.params)
+  res.send(`${req.method}---${req.url}`)
+})
+
+// 路由链式调用
+// app.get('/user', (req, res) => {
+
+// }).post('/video', (req, res) => {
+  
+// })
 
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)
