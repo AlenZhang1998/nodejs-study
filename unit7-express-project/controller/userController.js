@@ -5,7 +5,9 @@ exports.register = async (req, res) => {
   // res.send('/user-register')
   const userModel = new User(req.body)
   const dbBack = await userModel.save()
-  res.status(201).json(dbBack)
+  user = dbBack.toJSON()
+  delete user.password
+  res.status(201).json({user})
 }
 
 exports.list = async (req, res) => {
