@@ -2,6 +2,7 @@ const { User } = require('../model')
 
 exports.register = async (req, res) => {
   console.log(111, req.body)
+  return
   // res.send('/user-register')
   const userModel = new User(req.body)
   const dbBack = await userModel.save()

@@ -19,11 +19,11 @@ const userScheme = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: false
   },
   phone: {
     type: String,
-    required: true
+    required: false
   },
   // image: {
   //   type: String,
