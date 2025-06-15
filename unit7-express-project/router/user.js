@@ -11,11 +11,11 @@ router
   ...validator.register,
   (req, res, next) => {
     const err = validationResult(req);
-    if (err) {
-      console.log(err)
+    if (!err.isEmpty()) {
+      return res.status(401).json({error: err.array()})
     }
-    userController.register
-  })
+    next()
+  },userController.register)
 .get('/list', userController.list)
 .delete('/', userController.delete)
 
