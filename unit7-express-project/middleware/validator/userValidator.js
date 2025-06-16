@@ -11,5 +11,11 @@ module.exports.register = validate([
     if (emailValidator) {
       return Promise.reject('邮箱已被注册')
     }
-  })
+  }).bail(),
+  body('phone').notEmpty().withMessage('请输入手机号').bail().isMobilePhone().withMessage('手机号格式不正确').bail().custom(async val => {
+    const phoneValidator = await User.findOne({phone: val})
+    if (phoneValidator) {
+      return Promise.reject('手机号已被注册')
+    }
+  }).bail(),
 ])
