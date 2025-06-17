@@ -12,7 +12,7 @@ app.use(express.json())
 app.use(express.urlencoded())
 app.use(cors()) // 跨域处理
 app.use(morgan('dev')) // 日志记录(dev开发模式下)
-app.use('/api/v1', router)
+app.use('/api/v1', router) // v1版本
 
 
 
