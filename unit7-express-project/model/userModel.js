@@ -15,7 +15,8 @@ const userScheme = new mongoose.Schema({
     required: true,
     set: val => {
       return md5(val)
-    }
+    },
+    select: false
   },
   email: {
     type: String,
