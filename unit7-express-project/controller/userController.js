@@ -17,7 +17,9 @@ exports.login = async (req, res) => {
   console.log('login', req.body)
   // 客户端数据验证
   // 连接数据库查询
+  const dbBack = await User.findOne(req.body)
   // 
+  res.status(200).json(dbBack)
 }
 
 exports.list = async (req, res) => {
