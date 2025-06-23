@@ -1,7 +1,8 @@
 const { User } = require('../model')
 
+// 用户注册
 exports.register = async (req, res) => {
-  console.log(111, req.body)
+  console.log('register', req.body)
   // return
   // res.send('/user-register')
   const userModel = new User(req.body)
@@ -9,6 +10,14 @@ exports.register = async (req, res) => {
   user = dbBack.toJSON()
   delete user.password
   res.status(201).json({user})
+}
+
+// 用户登录
+exports.login = async (req, res) => {
+  console.log('login', req.body)
+  // 客户端数据验证
+  // 连接数据库查询
+  // 
 }
 
 exports.list = async (req, res) => {

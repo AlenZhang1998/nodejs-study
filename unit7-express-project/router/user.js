@@ -10,6 +10,7 @@ router
   // body('age').notEmpty().withMessage('请输入年龄').isLength({min: 1, max: 3}).withMessage('长度不能大于3'),
   validator.register,
   userController.register)
+.post('/logins', validator.login, userController.login)
 .get('/list', userController.list)
 .delete('/', userController.delete)
 

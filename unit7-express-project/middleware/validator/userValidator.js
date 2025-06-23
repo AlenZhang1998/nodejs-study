@@ -19,3 +19,8 @@ module.exports.register = validate([
     }
   }).bail(),
 ])
+
+module.exports.login = validate([
+  body('email').notEmpty().withMessage('邮箱不能为空').bail().isEmail().withMessage('邮箱格式不正确'),
+  body('password').notEmpty().withMessage('密码不能为空'),
+])
