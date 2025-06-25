@@ -1,5 +1,6 @@
 const { User } = require('../model')
 const jwt = require('jsonwebtoken')
+const { createToken } = require('../util/jwt')
 
 // 用户注册
 exports.register = async (req, res) => {
@@ -24,9 +25,8 @@ exports.login = async (req, res) => {
   }
 
   dbBack = dbBack.toJSON()
-  dbBack.token = jwt.sign(dbBack, '05216649-2c81-4ab7-9ec1-b34e7bbd3d19')
-
-  // 
+  // dbBack.token = jwt.sign(dbBack, '05216649-2c81-4ab7-9ec1-b34e7bbd3d19')
+  dbBack.token = await createToken(dbBack)
   res.status(200).json(dbBack)
 }
 
