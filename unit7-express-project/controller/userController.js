@@ -1,4 +1,5 @@
 const { User } = require('../model')
+const jwt = require('jsonwebtoken')
 
 // 用户注册
 exports.register = async (req, res) => {
@@ -17,7 +18,14 @@ exports.login = async (req, res) => {
   console.log('login', req.body)
   // 客户端数据验证
   // 连接数据库查询
-  const dbBack = await User.findOne(req.body)
+  let dbBack = await User.findOne(req.body)
+  if(!dbBack) {
+    res.status(402).json({error: '邮箱或者密码不正确'})
+  }
+
+  dbBack = dbBack.toJSON()
+  dbBack.token = jwt.sign(dbBack, '05216649-2c81-4ab7-9ec1-b34e7bbd3d19')
+
   // 
   res.status(200).json(dbBack)
 }
