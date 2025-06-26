@@ -16,7 +16,7 @@ const userScheme = new mongoose.Schema({
     set: val => {
       return md5(val)
     },
-    select: false
+    select: false // 查询的时候剔除
   },
   email: {
     type: String,

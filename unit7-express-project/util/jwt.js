@@ -14,7 +14,7 @@ const { uuid } = require('../config/config.default')
 // 生成token
 module.exports.createToken = async (userinfo) => {
   return await tojwt(
-    {userinfo}, 
+    { userinfo }, 
     uuid,
      {
       expiresIn: 60 * 60 * 24
@@ -30,6 +30,7 @@ module.exports.verifyToken = async (req, res, next) => {
   if (token) {
     try {
       const userinfo = await verify(token, uuid)
+      req.user = userinfo
       next()
     } catch (error) {
       res.status(402).json({error: '无效的token'})

@@ -6,8 +6,6 @@ const cors = require('cors')
 const morgan = require('morgan')
 const router = require('./router/index')
 
-const PORT = process.env.PORT || 3000
-
 app.use(express.json())
 app.use(express.urlencoded())
 app.use(cors()) // 跨域处理
@@ -15,7 +13,7 @@ app.use(morgan('dev')) // 日志记录(dev开发模式下)
 app.use('/api/v1', router) // v1版本
 
 
-
+const PORT = process.env.PORT || 8888 // 设置默认端口
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)
 })

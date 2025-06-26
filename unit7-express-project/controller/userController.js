@@ -1,5 +1,5 @@
 const { User } = require('../model')
-const jwt = require('jsonwebtoken')
+// const jwt = require('jsonwebtoken')
 const { createToken } = require('../util/jwt')
 
 // 用户注册
@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
 }
 
 exports.list = async (req, res) => {
-  console.log(req.methods)
+  console.log(req)
   res.send('/user-list')
 }
 
