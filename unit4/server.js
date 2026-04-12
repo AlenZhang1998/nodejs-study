@@ -29,7 +29,13 @@ server.on('request', function (req, res) {
             }
         })
     } else {
-        res.write('hello')
-        res.end() // 断开服务器
+        // res.write('hello')
+        fs.readFile('./photo.png', function (err, data) {
+            if (err) {
+                res.end('404 Not Found')
+            } else {
+                res.end(data)
+            }
+        })
     }
 })
