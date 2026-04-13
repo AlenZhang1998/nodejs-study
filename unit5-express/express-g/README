@@ -1,0 +1,3 @@
+一个用于快速创建 Express.js 应用基础结构的命令行工具
+npx express-generator
+npm install
