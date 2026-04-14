@@ -48,12 +48,10 @@ app.post('/', async (req, res) => {
 
   // 写入文件
   try {
-    const w = await db.saveDb(jsonObj);
-    if(!w) {
-      res.status(200).send({
-        msg: '添加成功'
-      })
-    }
+    await db.saveDb(jsonObj);
+    res.status(200).send({
+      msg: '添加成功'
+    })
   } catch (error) {
     res.status(500).json({error})
   }
