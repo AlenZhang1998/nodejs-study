@@ -12,9 +12,9 @@ const clientFunc = async (c) => {
 const main = async () => {
   const cc = await clientFunc('cc')
   // 查询d
-  const d = await cc.find()
-  // const d = await user.findOne({age: {$gt: 18}})
-  // const d = await user.find({age: {$gt: 18}})
+  // const d = await cc.find()
+  const d = await cc.findOne({age: {$gt: 18}})
+  // const d = await cc.find({age: {$gt: 18}})
 
   // 插入
   // const d = await cc.insertOne({name: 'cc', age: 18})
@@ -29,7 +29,8 @@ const main = async () => {
   // 删除
   // const d = await cc.deleteOne({k: 4})
 
-  console.log(await d.toArray())
+  // console.log(await d.toArray())
+  console.log(d)
 }
 
 main()
