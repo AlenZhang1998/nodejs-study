@@ -1,1 +1,24 @@
 npm install mongodb
+
+const { MongoClient } = require('mongodb')
+
+async function main() {
+  const client = new MongoClient('mongodb://127.0.0.1:27017')
+
+  try {
+    await client.connect()
+
+    const db = client.db('test')
+    const userCollection = db.collection('user')
+
+    // 在这里写你的代码
+    const res = await userCollection.find().toArray()
+    console.log(res)
+  } catch (err) {
+    console.error('出错了：', err)
+  } finally {
+    await client.close()
+  }
+}
+
+main()
