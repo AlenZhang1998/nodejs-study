@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000
 
 // app.all不匹配路由方法(不区分get\post等)
 app.all('/xx', (req, res, next) => {
+  console.log('xx')
   res.send('xx')
 })
 

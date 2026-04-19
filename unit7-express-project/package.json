@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon ./app.js",
-    "dev:app1": "nodemon ./app-1.js"
+    "dev:app1": "nodemon ./app-1.js",
+    "dev:app2": "nodemon ./app-2.js",
+    "dev:app3": "nodemon ./app-3.js",
+    "dev:app4": "nodemon ./app-4.js"
   },
   "repository": {
     "type": "git",
