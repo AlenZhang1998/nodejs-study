@@ -1,3 +1,6 @@
+// bail 如果前面验证不通过，后面就不继续
+// https://express-validator.github.io/docs/guides/manually-running
+
 const { body } = require('express-validator')
 const validate = require('./errorBack')
 const { User } = require('../../model/index')
