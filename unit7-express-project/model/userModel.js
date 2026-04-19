@@ -6,10 +6,6 @@ const userScheme = new mongoose.Schema({
     type: String,
     required: true
   },
-  age: {
-    type: Number,
-    required: true
-  },
   password: {
     type: String,
     required: true,
@@ -20,6 +16,10 @@ const userScheme = new mongoose.Schema({
   },
   email: {
     type: String,
+    required: true
+  },
+  age: {
+    type: Number,
     required: true
   },
   phone: {
