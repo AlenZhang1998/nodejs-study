@@ -10,7 +10,7 @@ exports.register = async (req, res) => {
   const userModel = new User(req.body)
   const dbBack = await userModel.save() // 把这个对象保存到数据库 save() 是 Mongoose 文档实例的方法。
   user = dbBack.toJSON()
-  delete user.password // 避免密码泄露
+  delete user.password // 避免密码泄露 防接口响应时把密码发回前端
   res.status(201).json({user})
 }
 

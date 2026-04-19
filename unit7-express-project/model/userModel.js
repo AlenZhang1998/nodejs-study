@@ -12,7 +12,7 @@ const userScheme = new mongoose.Schema({
     set: val => {
       return md5(val)
     },
-    select: false // 查询的时候剔除
+    select: false // 查询的时候剔除 select: false：防查询时默认带出密码
   },
   email: {
     type: String,
