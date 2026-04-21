@@ -4,7 +4,7 @@ const { createToken } = require('../util/jwt')
 
 // 用户注册
 exports.register = async (req, res) => {
-  console.log('register', req.body)
+  console.log('7-register', req.body)
   // return
   // res.send('/user-register')
   const userModel = new User(req.body)
@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
 
 // 用户登录
 exports.login = async (req, res) => {
-  console.log('login', req.body)
+  console.log('19-login', req.body)
   // 客户端数据验证
   // 连接数据库查询
   let dbBack = await User.findOne(req.body)

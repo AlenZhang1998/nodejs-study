@@ -25,13 +25,13 @@ module.exports.createToken = async (userinfo) => {
 // 验证token
 module.exports.verifyToken = async (req, res, next) => {
   // console.log(26, req.headers)
-  let token = req.headers.authorization
-  token = token ? token.split(' ')[1] : null
+  let token = req.headers.authorization 
+  token = token ? token.split(' ')[1] : null // 去掉Bearer
   if (token) {
     try {
       const userinfo = await verify(token, uuid)
       req.user = userinfo
-      next()
+      next() // 验证成功  继续往下走
     } catch (error) {
       res.status(402).json({error: '无效的token'})
     }
