@@ -30,5 +30,26 @@ module.exports.login = validate([
       return Promise.reject('邮箱未注册')
     }
   }).bail(),
-  body('password').notEmpty().withMessage('密码不能为空'),
+])
+
+// 用户修改验证
+module.exports.update = validate([
+  body('username').custom(async val => {
+    const usernameValidator = await User.findOne({username: val})
+    if (usernameValidator) {
+      return Promise.reject('用户名已被注册')
+    }
+  }).bail(),
+  body('email').custom(async val => {
+    const emailValidator = await User.findOne({email: val})
+    if (emailValidator) {
+      return Promise.reject('邮箱已被注册')
+    }
+  }).bail(),
+  body('phone').custom(async val => {
+    const phoneValidator = await User.findOne({phone: val})
+    if (phoneValidator) {
+      return Promise.reject('手机号已被注册')
+    }
+  }).bail(),
 ])

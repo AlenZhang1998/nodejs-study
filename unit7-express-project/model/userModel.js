@@ -26,10 +26,18 @@ const userScheme = new mongoose.Schema({
     type: String,
     required: true
   },
-  // image: {
-  //   type: String,
-  //   default: null
-  // },
+  image: { // 头像
+    type: String,
+    default: null
+  },
+  cover: { // 频道封面
+    type: String,
+    default: null
+  },
+  channeldes: { // 频道描述
+    type: String,
+    default: null
+  },
   ...baseModel
   
 })

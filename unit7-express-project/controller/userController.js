@@ -39,3 +39,15 @@ exports.delete = async (req, res) => {
   console.log(req.methods)
   res.send('/user-delete')
 }
+
+// 用户修改
+exports.update = async (req, res) => {
+  console.log('45-login', req.user)
+  const id = req.user.userinfo._id
+  const dbBack = await User.findByIdAndUpdate(id, req.body, {
+    new: true, // 这样才能返回最新数据
+    runValidators: true
+  }) // jwt req.user = userinfo
+  console.log(48, dbBack)
+  res.status(200).json({user: dbBack})
+}
