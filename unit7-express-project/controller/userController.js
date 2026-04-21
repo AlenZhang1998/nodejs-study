@@ -31,7 +31,7 @@ exports.login = async (req, res) => {
 }
 
 exports.list = async (req, res) => {
-  console.log(req)
+  console.log(34, req.user)
   res.send('/user-list')
 }
 
