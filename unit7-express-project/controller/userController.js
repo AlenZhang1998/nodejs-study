@@ -1,6 +1,10 @@
 const { User } = require('../model')
+const fs = require('fs')
 // const jwt = require('jsonwebtoken')
 const { createToken } = require('../util/jwt')
+const { promisify } = require('util')
+
+const rename = promisify(fs.rename)
 
 // 用户注册
 exports.register = async (req, res) => {
@@ -50,4 +54,38 @@ exports.update = async (req, res) => {
   }) // jwt req.user = userinfo
   console.log(48, dbBack)
   res.status(200).json({user: dbBack})
+}
+
+// 上传头像
+exports.headimg = async (req, res) => {
+  console.log('57-headimg', req.file)
+  // {
+  //   "fieldname": "headimg",
+  //   "originalname": "id_b.jpg",
+  //   "encoding": "7bit",
+  //   "mimetype": "image/jpeg",
+  //   "destination": "public/",
+  //   "filename": "2891f7aea542b8377a0c2a54496e19f1",
+  //   "path": "public\\2891f7aea542b8377a0c2a54496e19f1",
+  //   "size": 5766197
+  // }
+  try {
+    const fileArr = req.file.originalname.split('.')
+    const fileType = fileArr[fileArr.length - 1]
+    await rename(
+      './public/' + req.file.filename,
+      './public/' + req.file.filename + '.' + fileType
+    )
+    res.status(201).json({filepath: req.file.filename + '.' + fileType})
+  } catch (error) {
+    res.status(500).json({error})
+  }
+  
+  // const id = req.user.userinfo._id
+  // const dbBack = await User.findByIdAndUpdate(id, {image: req.file.path}, {
+  //   new: true, // 这样才能返回最新数据
+  //   runValidators: true
+  // }) // jwt req.user = userinfo
+  // console.log(60, dbBack)
+  // res.status(200).json({user: dbBack})
 }
