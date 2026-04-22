@@ -6,7 +6,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 
 app.use(express.json())
-app.use(express.urlencoded())
+app.use(express.urlencoded({ extended: false }))
 app.use(cors()) // 跨域处理
 app.use(morgan('dev')) // 日志记录(dev开发模式下) 请求方法 路径 状态码 耗时 响应体大小
 app.use(express.static('public')) // 处理静态资源
