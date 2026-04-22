@@ -1,8 +1,39 @@
 const { Video } = require('../model')
 
-exports.list = async (req, res) => {
-  console.log(req.methods)
-  res.send('/video-list')
+const getPageParam = (value, defaultValue) => {
+  const parsedValue = Number.parseInt(value, 10)
+
+  if (Number.isNaN(parsedValue) || parsedValue < 1) {
+    return defaultValue
+  }
+
+  return parsedValue
+}
+
+exports.videolist = async (req, res) => {
+  try {
+    const pageNum = getPageParam(req.query.pageNum ?? req.body?.pageNum, 1)
+    const pageSize = getPageParam(req.query.pageSize ?? req.body?.pageSize, 10)
+    const skipCount = (pageNum - 1) * pageSize
+
+    const [videolist, total] = await Promise.all([
+      Video.find()
+        .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
+        .skip(skipCount)   // 再跳过前面不属于当前页的数据
+        .limit(pageSize),  // 再取当前页需要的条数
+      Video.countDocuments() // 同时再查一次总数，返回给前端做分页显示
+    ])
+
+    res.status(200).json({
+      videolist,
+      pageNum,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize)
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 }
 
 exports.delete = async (req, res) => {
@@ -24,3 +55,7 @@ exports.createVideo = async (req, res) => {
     res.status(statusCode).json({ error: error.message })
   }
 }
+
+
+// 200 = 成功
+// 201 = 成功并且创建了新资源
