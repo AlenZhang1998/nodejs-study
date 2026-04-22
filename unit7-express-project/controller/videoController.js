@@ -20,7 +20,8 @@ exports.videolist = async (req, res) => {
       Video.find()
         .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
         .skip(skipCount)   // 再跳过前面不属于当前页的数据
-        .limit(pageSize),  // 再取当前页需要的条数
+        .limit(pageSize)   // 再取当前页需要的条数
+        .populate('user'),  // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
       Video.countDocuments() // 同时再查一次总数，返回给前端做分页显示
     ])
 
