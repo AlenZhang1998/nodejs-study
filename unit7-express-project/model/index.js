@@ -37,5 +37,6 @@ main().then(res => {
 
 module.exports = {
   User: mongoose.model('User', require('./userModel')), // 第一个参数是集合的名字
-  Video: mongoose.model('Video', require('./videoModel'))
+  Video: mongoose.model('Video', require('./videoModel')),
+  Subscribe: mongoose.model('Subscribe', require('./subscribeModel'))
 }

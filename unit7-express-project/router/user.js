@@ -15,6 +15,7 @@ router
   // body('age').notEmpty().withMessage('请输入年龄').isLength({min: 1, max: 3}).withMessage('长度不能大于3'),
   validator.register,
   userController.register)
+.get('/subscribe/:userId', verifyToken(), userController.subscribe) // 关注与取消关注
 .post('/logins', validator.login, userController.login)
 .get('/list', verifyToken(), userController.list)
 .put('/', verifyToken(), validator.update, userController.update) // 编辑用户
