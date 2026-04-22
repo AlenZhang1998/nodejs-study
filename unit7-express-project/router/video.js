@@ -18,7 +18,8 @@ const { verifyToken } = require('../util/jwt')
 
 // 路由链式调用
 router
-.get('/videolist', verifyToken, videoController.videolist)
-.post('/createVideo', verifyToken, videoValidator.createVideo, videoController.createVideo)
+.get('/videolist', videoController.videolist)
+.get('/:videoId', verifyToken(false), videoController.video)
+.post('/createVideo', verifyToken(), videoValidator.createVideo, videoController.createVideo)
 
 module.exports = router

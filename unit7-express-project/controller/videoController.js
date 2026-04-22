@@ -37,6 +37,19 @@ exports.videolist = async (req, res) => {
   }
 }
 
+exports.video = async (req, res) => {
+  // console.log(42,req.params)
+  try {
+    const { videoId } = req.params
+    const videoDetail = await Video.findById(videoId).populate('user', '_id username cover') // 只要user里面的这几个字段
+    // console.log(45, videoDetail)
+
+    res.status(200).json(videoDetail)
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
 exports.delete = async (req, res) => {
   console.log(req.methods)
   // res.send('/video-delete')

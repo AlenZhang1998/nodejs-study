@@ -16,9 +16,9 @@ router
   validator.register,
   userController.register)
 .post('/logins', validator.login, userController.login)
-.get('/list', verifyToken, userController.list)
-.put('/', verifyToken, validator.update, userController.update) // 编辑用户
+.get('/list', verifyToken(), userController.list)
+.put('/', verifyToken(), validator.update, userController.update) // 编辑用户
 .delete('/', userController.delete) // 删除用户
-.post('/headimg', verifyToken, upload.single('headimg'), userController.headimg) // 上传头像
+.post('/headimg', verifyToken(), upload.single('headimg'), userController.headimg) // 上传头像
 
 module.exports = router
