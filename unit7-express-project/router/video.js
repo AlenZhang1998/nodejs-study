@@ -20,6 +20,7 @@ const { verifyToken } = require('../util/jwt')
 router
 .get('/videolist', videoController.videolist)
 .get('/:videoId', verifyToken(false), videoController.video)
-.post('/createVideo', verifyToken(), videoValidator.createVideo, videoController.createVideo)
+.post('/createVideo', verifyToken(), videoValidator.createVideo, videoController.createVideo) // 上传视频
+.post('/comment/:videoId', verifyToken(), videoValidator.comment, videoController.comment) // 添加视频评论
 
 module.exports = router

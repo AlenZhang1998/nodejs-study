@@ -1,4 +1,4 @@
-const { Video } = require('../model')
+const { Video, Videocomment } = require('../model')
 
 const getPageParam = (value, defaultValue) => {
   const parsedValue = Number.parseInt(value, 10)
@@ -55,6 +55,7 @@ exports.delete = async (req, res) => {
   // res.send('/video-delete')
 }
 
+// 上传视频
 exports.createVideo = async (req, res) => {
   try {
     const videoModel = new Video({
@@ -73,3 +74,29 @@ exports.createVideo = async (req, res) => {
 
 // 200 = 成功
 // 201 = 成功并且创建了新资源
+
+// 评论视频
+exports.comment = async (req, res) => {
+  try {
+    const { videoId } = req.params
+    // 拿到被评论的视频
+    const videoInfo = await Video.findById(videoId)
+    if (!videoInfo) {
+      return res.status(404).json({ err: '视频不存在' })
+    }
+
+    // 添加评论信息
+    const comment = await new Videocomment({
+      content: req.body.content,
+      video: videoId,
+      user: req.user.userinfo._id
+    }).save()
+    videoInfo.commentCount++
+    await videoInfo.save()
+
+    res.status(201).json(comment)
+  } catch (error) {
+    const statusCode = error.name === 'ValidationError' ? 422 : 500
+    res.status(statusCode).json({ error: error.message })
+  }
+}
