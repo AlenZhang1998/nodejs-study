@@ -207,3 +207,17 @@ exports.getuser = async (req, res) => {
     return res.status(500).json({err: error})
   }
 }
+
+// 获取关注列表
+exports.getsubscribe = async (req, res) => {
+  try {
+    const subscribeList = await Subscribe.find({
+      user: req.params.userId
+    }).populate('channel', '_id username image subscribeCount cover channeldes')
+    // 加了 .populate('channel') 之后，Mongoose 会自动去把这个 ObjectId 对应的 User 文档查出来并替换进去。
+
+    return res.status(200).json(subscribeList)
+  } catch (error) {
+    return res.status(500).json({err: error})
+  }
+}
