@@ -100,3 +100,33 @@ exports.comment = async (req, res) => {
     res.status(statusCode).json({ error: error.message })
   }
 }
+
+// 获取评论列表
+exports.commentlist = async (req, res) => {
+  try {
+    const { videoId } = req.params
+    const pageNum = getPageParam(req.query.pageNum ?? req.body?.pageNum, 1)
+    const pageSize = getPageParam(req.query.pageSize ?? req.body?.pageSize, 10)
+    const skipCount = (pageNum - 1) * pageSize
+    
+    const [commentlist, total] = await Promise.all([
+      Videocomment.find({video: videoId})
+        .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
+        .skip(skipCount)   // 再跳过前面不属于当前页的数据
+        .limit(pageSize)   // 再取当前页需要的条数
+        .populate('user', '_id username image'),  // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
+      Videocomment.countDocuments() // 同时再查一次总数，返回给前端做分页显示
+    ])
+
+    res.status(200).json({
+      commentlist,
+      pageNum,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize)
+    })
+  } catch (error) {
+    // const statusCode = error.name === 'ValidationError' ? 422 : 500
+    res.status(500).json({ error: error.message })
+  }
+}
