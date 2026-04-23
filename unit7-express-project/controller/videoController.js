@@ -130,3 +130,33 @@ exports.commentlist = async (req, res) => {
     res.status(500).json({ error: error.message })
   }
 }
+
+// 删除视频评论
+exports.deletecomment = async (req, res) => {
+  try {
+    // console.log(137, req.user.userinfo._id)
+    const { videoId, commentId } = req.params
+    // 查询视频是否存在
+    const videoInfo = await Video.findById(videoId)
+    if (!videoInfo) {
+      return res.status(404).json({ err: '视频不存在' })
+    }
+    // 查询评论是否存在
+    const videocommentInfo = await Videocomment.findById(commentId)
+    if (!videocommentInfo) {
+      return res.status(404).json({ err: '评论不存在' })
+    }
+    // 只能删除自己写的评论
+    if (!videocommentInfo.user.equals(req.user.userinfo._id)) {
+      return res.status(403).json({ err: '评论无法删除' })
+    }
+    await videocommentInfo.deleteOne() // 删除评论
+    videoInfo.commentCount--
+    await videoInfo.save()
+
+    res.status(200).json({msg: '删除成功'})
+  } catch (error) {
+    // const statusCode = error.name === 'ValidationError' ? 422 : 500
+    res.status(500).json({ error: error.message })
+  }
+}

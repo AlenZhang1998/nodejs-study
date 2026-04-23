@@ -16,11 +16,6 @@ const videocommentScheme = new mongoose.Schema({
     required: true,
     ref: 'User' // 和userModel关联
   },
-  commentCount: {
-    type: Number,
-    default: 0,
-    required: false
-  },
   ...baseModel
 })
 
