@@ -6,7 +6,7 @@ const subscribeScheme = new mongoose.Schema({
     required: true,
     ref: 'User' // 和userModel关联 表示“视频属于哪个用户”
   },
-  channel: { // 视频描述
+  channel: {
     type: mongoose.ObjectId,
     required: true,
     ref: 'User'
