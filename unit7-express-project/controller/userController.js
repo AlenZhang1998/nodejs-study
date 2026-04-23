@@ -1,5 +1,6 @@
 const { User, Subscribe } = require('../model')
 const fs = require('fs')
+const lodash = require('lodash')
 // const jwt = require('jsonwebtoken')
 const { createToken } = require('../util/jwt')
 const { promisify } = require('util')
@@ -163,5 +164,46 @@ exports.unsubscribe = async (req, res) => {
   } catch (error) {
     const statusCode = error.name === 'ValidationError' ? 422 : 500
     return res.status(statusCode).json({err: error.message})
+  }
+}
+
+// 获取频道
+exports.getuser = async (req, res) => {
+  try {
+    // console.log(req.params)
+    // const userId = String(req.user.userinfo._id)
+    const channelId = req.params.userId
+    let isSubscribe = false
+
+    if (req.user) { // 如果已登录
+      // 再看是否关注过用户
+      const record = await Subscribe.findOne({
+        user: String(req.user.userinfo._id),
+        channel: channelId
+      })
+
+      if (record) { // 关注过
+        isSubscribe = true
+      }
+    }
+    const user = await User.findById(channelId)
+    if (!user) {
+      return res.status(404).json({ err: '用户不存在' })
+    }    
+    // user.isSubscribe = isSubscribe
+
+    return res.status(200).json({
+      ...lodash.pick(user, [ // pick 创建一个从object中选中属性的对象
+        '_id',
+        'username',
+        'image',
+        'subscribeCount',
+        'cover',
+        'channeldes',
+      ]),
+      isSubscribe
+    })
+  } catch (error) {
+    return res.status(500).json({err: error})
   }
 }
