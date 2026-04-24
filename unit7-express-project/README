@@ -1,1 +1,471 @@
+# Express Video API
 584-Node.js工程师养成计划
+
+一个基于 `Express + MongoDB + Mongoose` 的练手项目，当前已经具备用户、频道关注、视频、评论、点赞/点踩、喜欢列表等接口。
+
+接口统一挂在 `/api/v1` 下，默认启动端口是 `8888`。
+
+## 技术栈
+
+- `express`
+- `mongoose`
+- `jsonwebtoken`
+- `express-validator`
+- `multer`
+- `cors`
+- `morgan`
+
+## 目录结构
+
+```text
+unit7-express-project
+├── app.js                       # 项目入口
+├── config/
+│   └── config.default.js        # 数据库和 JWT 配置
+├── controller/
+│   ├── userController.js        # 用户相关控制器
+│   └── videoController.js       # 视频相关控制器
+├── middleware/
+│   └── validator/               # 参数校验中间件
+├── model/
+│   ├── userModel.js             # 用户模型
+│   ├── videoModel.js            # 视频模型
+│   ├── subscribeModel.js        # 关注模型
+│   ├── videocommentModel.js     # 视频评论模型
+│   ├── videolikeModel.js        # 视频喜欢/不喜欢模型
+│   └── index.js                 # Mongoose 连接和模型导出
+├── public/                      # 静态资源和上传文件目录
+├── router/
+│   ├── index.js                 # 路由总入口
+│   ├── user.js                  # 用户路由
+│   └── video.js                 # 视频路由
+└── util/
+    ├── jwt.js                   # token 生成与校验
+    └── md5.js                   # 密码加密
+```
+
+## 启动项目
+
+### 1. 安装依赖
+
+```bash
+npm install
+```
+
+### 2. 确保本地 MongoDB 已启动
+
+当前默认连接串写在 `config/config.default.js`：
+
+```js
+module.exports.mongopath = 'mongodb://localhost:27017/express-video'
+```
+
+### 3. 启动服务
+
+```bash
+npm run dev
+```
+
+启动后访问：
+
+```text
+http://localhost:8888
+```
+
+接口基地址：
+
+```text
+http://localhost:8888/api/v1
+```
+
+## 鉴权说明
+
+登录成功后会返回 `token`。
+
+需要登录的接口请在请求头中传：
+
+```text
+Authorization: Bearer <token>
+```
+
+`verifyToken(false)` 表示可以不登录访问，但如果带了合法 token，接口会额外返回当前用户相关状态。
+
+## 数据模型
+
+### User
+
+主要字段：
+
+- `username`
+- `password`
+- `email`
+- `age`
+- `phone`
+- `image`
+- `cover`
+- `channeldes`
+- `subscribeCount`
+- `createAt`
+- `updateAt`
+
+### Video
+
+主要字段：
+
+- `title`
+- `description`
+- `user`
+- `cover`
+- `commentCount`
+- `likeCount`
+- `dislikeCount`
+- `createAt`
+- `updateAt`
+
+### Subscribe
+
+主要字段：
+
+- `user`
+- `channel`
+
+### Videocomment
+
+主要字段：
+
+- `content`
+- `video`
+- `user`
+
+### Videolike
+
+主要字段：
+
+- `user`
+- `video`
+- `like`
+
+说明：
+
+- `like = 1` 表示喜欢
+- `like = -1` 表示不喜欢
+
+## 用户接口
+
+### 1. 用户注册
+
+- Method: `POST`
+- Path: `/user/register`
+- Auth: `否`
+
+请求体示例：
+
+```json
+{
+  "username": "tom",
+  "password": "123456",
+  "email": "tom@test.com",
+  "age": 18,
+  "phone": "13800138000"
+}
+```
+
+校验规则：
+
+- `username` 不能为空
+- `password` 不能为空
+- `email` 必须合法且不能重复
+- `phone` 必须合法且不能重复
+- `age` 必填
+
+### 2. 用户登录
+
+- Method: `POST`
+- Path: `/user/logins`
+- Auth: `否`
+
+请求体示例：
+
+```json
+{
+  "email": "tom@test.com",
+  "password": "123456"
+}
+```
+
+成功后返回用户信息和 `token`。
+
+### 3. 获取用户列表
+
+- Method: `GET`
+- Path: `/user/list`
+- Auth: `是`
+
+### 4. 编辑当前用户
+
+- Method: `PUT`
+- Path: `/user/`
+- Auth: `是`
+
+可更新字段示例：
+
+```json
+{
+  "username": "tom-updated",
+  "image": "avatar.png",
+  "cover": "cover.png",
+  "channeldes": "my channel"
+}
+```
+
+### 5. 上传头像
+
+- Method: `POST`
+- Path: `/user/headimg`
+- Auth: `是`
+- Content-Type: `multipart/form-data`
+
+表单字段：
+
+- `headimg`: 文件
+
+成功后返回：
+
+```json
+{
+  "filepath": "xxxxx.jpg"
+}
+```
+
+上传后的文件会保存在 `public/` 目录，并通过 `express.static('public')` 对外提供访问。
+
+### 6. 关注频道
+
+- Method: `GET`
+- Path: `/user/subscribe/:userId`
+- Auth: `是`
+
+说明：
+
+- 不能关注自己
+- 已关注会返回错误提示
+
+### 7. 取消关注频道
+
+- Method: `GET`
+- Path: `/user/unsubscribe/:userId`
+- Auth: `是`
+
+### 8. 获取频道信息
+
+- Method: `GET`
+- Path: `/user/getuser/:userId`
+- Auth: `可选`
+
+返回中会额外包含：
+
+- `isSubscribe`: 当前登录用户是否已关注该频道
+
+### 9. 获取某用户的关注列表
+
+- Method: `GET`
+- Path: `/user/getsubscribe/:userId`
+- Auth: `否`
+
+### 10. 获取当前用户的粉丝/频道列表
+
+- Method: `GET`
+- Path: `/user/getchannel`
+- Auth: `是`
+
+### 11. 删除当前用户
+
+- Method: `DELETE`
+- Path: `/user/`
+- Auth: `否`
+
+说明：
+
+- 该路由已存在
+- 当前控制器仍是占位实现，后续需要补真正的删除逻辑
+
+## 视频接口
+
+### 1. 获取视频列表
+
+- Method: `GET`
+- Path: `/video/videolist`
+- Auth: `否`
+
+支持分页参数：
+
+- `pageNum`
+- `pageSize`
+
+返回字段包含：
+
+- `videolist`
+- `pageNum`
+- `pageSize`
+- `total`
+- `totalPages`
+
+### 2. 获取视频详情
+
+- Method: `GET`
+- Path: `/video/:videoId`
+- Auth: `可选`
+
+登录后会额外返回：
+
+- `islike`
+- `isdislike`
+- `isSubcribe`
+
+### 3. 上传视频
+
+- Method: `POST`
+- Path: `/video/createVideo`
+- Auth: `是`
+
+请求体示例：
+
+```json
+{
+  "title": "node express demo",
+  "description": "first video",
+  "cover": "cover.png"
+}
+```
+
+校验规则：
+
+- `title` 必填
+- `title` 长度不能超过 20
+
+### 4. 删除视频
+
+- Method: `DELETE`
+- Path: `/video/:videoId`
+- Auth: `是`
+
+说明：
+
+- 只允许视频作者本人删除
+- 删除视频时会一并删除该视频下的评论和点赞/点踩记录
+
+### 5. 添加评论
+
+- Method: `POST`
+- Path: `/video/comment/:videoId`
+- Auth: `是`
+
+请求体示例：
+
+```json
+{
+  "content": "写得不错"
+}
+```
+
+校验规则：
+
+- `content` 必填
+- `content` 长度不能超过 50
+
+### 6. 获取评论列表
+
+- Method: `GET`
+- Path: `/video/commentlist/:videoId`
+- Auth: `否`
+
+支持分页参数：
+
+- `pageNum`
+- `pageSize`
+
+### 7. 删除评论
+
+- Method: `DELETE`
+- Path: `/video/comment/:videoId/:commentId`
+- Auth: `是`
+
+说明：
+
+- 只允许评论作者本人删除
+
+### 8. 喜欢视频
+
+- Method: `GET`
+- Path: `/video/like/:videoId`
+- Auth: `是`
+
+说明：
+
+- 再次点击会取消喜欢
+- 和“不喜欢”互斥
+
+### 9. 不喜欢视频
+
+- Method: `GET`
+- Path: `/video/dislike/:videoId`
+- Auth: `是`
+
+说明：
+
+- 再次点击会取消不喜欢
+- 和“喜欢”互斥
+
+### 10. 获取自己喜欢的视频列表
+
+- Method: `GET`
+- Path: `/video/likelist`
+- Auth: `是`
+
+支持分页参数：
+
+- `pageNum`
+- `pageSize`
+
+## 返回状态码
+
+项目里目前常见状态码：
+
+- `200` 请求成功
+- `201` 创建成功
+- `400` 参数格式错误
+- `401` 业务校验失败
+- `402` token 缺失或无效
+- `403` 无权限
+- `404` 资源不存在
+- `422` 参数校验失败
+- `500` 服务端错误
+
+## 开发脚本
+
+```bash
+npm run dev
+npm run dev:app1
+npm run dev:app2
+npm run dev:app3
+npm run dev:app4
+npm run format
+```
+
+## 已完成能力
+
+- 用户注册、登录、信息编辑
+- 头像上传
+- 频道关注与取消关注
+- 频道详情、关注列表、粉丝列表
+- 视频发布、视频列表、视频详情
+- 视频删除
+- 视频评论与删除评论
+- 视频喜欢/不喜欢
+- 喜欢视频列表
+
+## 待完善
+
+- `DELETE /api/v1/user/` 仍是占位接口
+- 部分接口的错误返回格式还不够统一
+- 配置目前写死在 `config.default.js`，后续可以改成环境变量
