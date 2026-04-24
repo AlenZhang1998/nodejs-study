@@ -1,4 +1,4 @@
-const { Video, Videocomment, Videolike } = require('../model')
+const { Video, Videocomment, Videolike, Subscribe } = require('../model')
 
 const getPageParam = (value, defaultValue) => {
   const parsedValue = Number.parseInt(value, 10)
@@ -44,9 +44,44 @@ exports.video = async (req, res) => {
   try {
     const { videoId } = req.params
     const videoDetail = await Video.findById(videoId).populate('user', '_id username cover') // 只要user里面的这几个字段
+    let videoInfo = videoDetail.toJSON()
+    videoInfo.islike = false
+    videoInfo.isdislike = false
+    videoInfo.isSubcribe = false
     // console.log(45, videoDetail)
 
-    res.status(200).json(videoDetail)
+    if (req?.user?.userinfo) {
+      // 已登录
+      // 判断之前是否喜欢/不喜欢 这个视频
+      const userId = req.user.userinfo._id
+      const record = await Videolike.findOne({
+        user: userId,
+        video: videoId,
+        like: 1
+      })
+      const record2 = await Videolike.findOne({
+        user: userId,
+        video: videoId,
+        like: -1
+      })
+      if (record) {
+        videoInfo.islike = true
+      }
+      if (record2) {
+        videoInfo.isdislike = true
+      }
+
+      // 判断是否关注过该视频作者
+      const record3 = await Subscribe.findOne({
+        user: userId,
+        channel: videoInfo.user._id
+      })
+      if (record3) {
+        videoInfo.isSubcribe = true
+      }
+    }
+
+    res.status(200).json(videoInfo)
   } catch (error) {
     res.status(500).json({ error: error.message })
   }
