@@ -1,3 +1,4 @@
+const mongoose = require('mongoose')
 const { Video, Videocomment, Videolike, Subscribe } = require('../model')
 
 const getPageParam = (value, defaultValue) => {
@@ -88,8 +89,33 @@ exports.video = async (req, res) => {
 }
 
 exports.delete = async (req, res) => {
-  console.log(req.methods)
-  // res.send('/video-delete')
+  try {
+    const { videoId } = req.params
+    const userId = req.user.userinfo._id
+
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+      return res.status(400).json({ error: 'videoId 格式不正确' })
+    }
+
+    const videoInfo = await Video.findById(videoId)
+    if (!videoInfo) {
+      return res.status(404).json({ err: '视频不存在' })
+    }
+
+    if (!videoInfo.user.equals(userId)) {
+      return res.status(403).json({ err: '没有权限删除该视频' })
+    }
+
+    await Promise.all([
+      Videocomment.deleteMany({ video: videoId }),
+      Videolike.deleteMany({ video: videoId }),
+      videoInfo.deleteOne()
+    ])
+
+    res.status(200).json({ msg: '删除视频成功' })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
 }
 
 // 上传视频

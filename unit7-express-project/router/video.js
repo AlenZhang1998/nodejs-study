@@ -22,6 +22,7 @@ router
   .post('/createVideo', verifyToken(), videoValidator.createVideo, videoController.createVideo) // 上传视频
   .post('/comment/:videoId', verifyToken(), videoValidator.comment, videoController.comment) // 添加视频评论
   .get('/commentlist/:videoId', videoController.commentlist) // 获取评论列表
+  .delete('/:videoId', verifyToken(), videoController.delete) // 删除视频
   .delete('/comment/:videoId/:commentId', verifyToken(), videoController.deletecomment) // 删除视频评论
   .get('/like/:videoId', verifyToken(), videoController.likevideo) // 喜欢视频
   .get('/dislike/:videoId', verifyToken(), videoController.dislikevideo) // 不喜欢视频
