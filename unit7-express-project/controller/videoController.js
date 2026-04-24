@@ -10,6 +10,7 @@ const getPageParam = (value, defaultValue) => {
   return parsedValue
 }
 
+// 获取视频列表
 exports.videolist = async (req, res) => {
   try {
     const pageNum = getPageParam(req.query.pageNum ?? req.body?.pageNum, 1)
@@ -37,6 +38,7 @@ exports.videolist = async (req, res) => {
   }
 }
 
+// 获取视频详情
 exports.video = async (req, res) => {
   // console.log(42,req.params)
   try {
@@ -264,6 +266,36 @@ exports.dislikevideo = async (req, res) => {
       isdislike
     })
   } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// 获取喜欢的视频列表
+exports.likelist = async (req, res) => {
+  try {
+    const userId = req.user.userinfo._id
+    const pageNum = getPageParam(req.query.pageNum ?? req.body?.pageNum, 1)
+    const pageSize = getPageParam(req.query.pageSize ?? req.body?.pageSize, 10)
+    const skipCount = (pageNum - 1) * pageSize
+
+    const [likelist, total] = await Promise.all([
+      Videolike.find({ user: userId, like: 1 })
+        .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
+        .skip(skipCount) // 再跳过前面不属于当前页的数据
+        .limit(pageSize) // 再取当前页需要的条数
+        .populate('video', '_id title user'), // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
+      Videolike.countDocuments({ user: userId, like: 1 }) // 同时再查一次 自己喜欢的 总数，返回给前端做分页显示
+    ])
+
+    res.status(200).json({
+      likelist,
+      pageNum,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize)
+    })
+  } catch (error) {
+    // const statusCode = error.name === 'ValidationError' ? 422 : 500
     res.status(500).json({ error: error.message })
   }
 }
