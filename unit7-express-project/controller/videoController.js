@@ -161,7 +161,7 @@ exports.deletecomment = async (req, res) => {
   }
 }
 
-// 喜不喜欢视频 (谁点了喜欢， 喜欢什么视频)
+// 喜欢视频 (谁点了喜欢， 喜欢什么视频)
 exports.likevideo = async (req, res) => {
   try {
     const { videoId } = req.params
@@ -206,6 +206,57 @@ exports.likevideo = async (req, res) => {
     res.status(200).json({
       ...videoInfo.toJSON(),
       islike
+    })
+  } catch (error) {
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// 不喜欢
+exports.dislikevideo = async (req, res) => {
+  try {
+    const { videoId } = req.params
+    const userId = req.user.userinfo._id
+
+    // 查询视频是否存在
+    const videoInfo = await Video.findById(videoId)
+    if (!videoInfo) {
+      return res.status(404).json({ err: '视频不存在' })
+    }
+    // 喜欢不喜欢 是 互斥 的
+    const doc = await Videolike.findOne({
+      user: userId,
+      video: videoId
+    })
+    let isdislike = true
+    if (doc && doc.like === -1) { // 之前点过不喜欢
+      await doc.deleteOne() // 不能写remove()
+      isdislike = false
+    } else if (doc && doc.like === 1) { // 之前点过喜欢
+      doc.like = -1
+      await doc.save()
+      isdislike = true
+    } else { // 首次不喜欢
+      await new Videolike({
+        user: userId,
+        video: videoId,
+        like: -1
+      }).save()
+    }
+
+    videoInfo.likeCount = await Videolike.countDocuments({
+      video: videoId,
+      like: 1
+    })
+    videoInfo.dislikeCount = await Videolike.countDocuments({
+      video: videoId,
+      like: -1
+    })
+    await videoInfo.save()
+
+    res.status(200).json({
+      ...videoInfo.toJSON(),
+      isdislike
     })
   } catch (error) {
     res.status(500).json({ error: error.message })
