@@ -9,7 +9,7 @@ const userScheme = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    set: val => {
+    set: (val) => {
       return md5(val)
     },
     select: false // 查询的时候剔除 select: false：防查询时默认带出密码
@@ -26,15 +26,18 @@ const userScheme = new mongoose.Schema({
     type: String,
     required: true
   },
-  image: { // 头像
+  image: {
+    // 头像
     type: String,
     default: null
   },
-  cover: { // 频道封面
+  cover: {
+    // 频道封面
     type: String,
     default: null
   },
-  channeldes: { // 频道描述
+  channeldes: {
+    // 频道描述
     type: String,
     default: null
   },
@@ -44,7 +47,6 @@ const userScheme = new mongoose.Schema({
     required: false
   },
   ...baseModel
-  
 })
 
 module.exports = userScheme

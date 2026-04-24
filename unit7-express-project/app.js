@@ -14,7 +14,6 @@ app.use(express.static('public')) // 处理静态资源
 const router = require('./router/index')
 app.use('/api/v1', router) // v1版本
 
-
 const PORT = process.env.PORT || 8888 // 设置默认端口
 app.listen(PORT, () => {
   console.log(`Server is running at http://localhost:${PORT}`)

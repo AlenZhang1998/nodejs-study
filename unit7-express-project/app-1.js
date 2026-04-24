@@ -34,7 +34,7 @@ const PORT = process.env.PORT || 3000
 
 // 全局中间件
 app.use((req, res, next) => {
-  console.log(`app-1: ${req.method}, ${req.url}, ${Date.now()}`);
+  console.log(`app-1: ${req.method}, ${req.url}, ${Date.now()}`)
   next()
 })
 

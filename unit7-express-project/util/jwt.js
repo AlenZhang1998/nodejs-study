@@ -10,23 +10,18 @@ const { uuid } = require('../config/config.default')
 // const decoded = jwt.verify('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJpYXQiOjE3NTA3Nzg1OTh9._SMgroS99JXXrKx0ddl29bVgmPje4OC-W5LRCWChw9c', 'shhhhh');
 // console.log(decoded.foo)
 
-
 // 生成token
 module.exports.createToken = async (userinfo) => {
-  return await tojwt(
-    { userinfo }, 
-    uuid,
-     {
-      expiresIn: 60 * 60 * 24
-    }
-  )
+  return await tojwt({ userinfo }, uuid, {
+    expiresIn: 60 * 60 * 24
+  })
 }
 
 // 验证token
-module.exports.verifyToken = function(required = true) {
+module.exports.verifyToken = function (required = true) {
   return async (req, res, next) => {
     // console.log(26, req.headers)
-    let token = req.headers.authorization 
+    let token = req.headers.authorization
     token = token ? token.split(' ')[1] : null // 去掉Bearer
     if (token) {
       try {
@@ -34,10 +29,10 @@ module.exports.verifyToken = function(required = true) {
         req.user = userinfo
         next() // 验证成功  继续往下走
       } catch (error) {
-        res.status(402).json({error: '无效的token'})
+        res.status(402).json({ error: '无效的token' })
       }
     } else if (required) {
-      res.status(402).json({error: '请传入token'})
+      res.status(402).json({ error: '请传入token' })
     } else {
       // 不用登录 也可以继续往下查询的情况
       next()

@@ -28,17 +28,18 @@ async function main() {
 //   console.log(666, res)
 // })
 
-
-main().then(res => {
-  console.log(res, 'mongo连接成功')
-}).catch(err => {
-  console.log(err,'mongo连接失败')
-})
+main()
+  .then((res) => {
+    console.log(res, 'mongo连接成功')
+  })
+  .catch((err) => {
+    console.log(err, 'mongo连接失败')
+  })
 
 module.exports = {
   User: mongoose.model('User', require('./userModel')), // 第一个参数是集合的名字
   Video: mongoose.model('Video', require('./videoModel')),
   Subscribe: mongoose.model('Subscribe', require('./subscribeModel')),
   Videocomment: mongoose.model('Videocomment', require('./videocommentModel')),
-  Videolike: mongoose.model('Videolike', require('./videolikeModel')),
+  Videolike: mongoose.model('Videolike', require('./videolikeModel'))
 }

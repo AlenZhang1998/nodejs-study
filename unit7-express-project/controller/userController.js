@@ -16,7 +16,7 @@ exports.register = async (req, res) => {
   const dbBack = await userModel.save() // 把这个对象保存到数据库 save() 是 Mongoose 文档实例的方法。
   user = dbBack.toJSON()
   delete user.password // 避免密码泄露 防接口响应时把密码发回前端
-  res.status(201).json({user})
+  res.status(201).json({ user })
 }
 
 // 用户登录
@@ -25,8 +25,8 @@ exports.login = async (req, res) => {
   // 客户端数据验证
   // 连接数据库查询
   let dbBack = await User.findOne(req.body)
-  if(!dbBack) {
-    res.status(402).json({error: '邮箱或者密码不正确'})
+  if (!dbBack) {
+    res.status(402).json({ error: '邮箱或者密码不正确' })
   }
 
   dbBack = dbBack.toJSON()
@@ -38,7 +38,7 @@ exports.login = async (req, res) => {
 exports.list = async (req, res) => {
   console.log(34, req.user)
   const dbBack = await User.find()
-  res.status(200).json({userlist: dbBack})
+  res.status(200).json({ userlist: dbBack })
 }
 
 exports.delete = async (req, res) => {
@@ -55,7 +55,7 @@ exports.update = async (req, res) => {
     runValidators: true
   }) // jwt req.user = userinfo
   console.log(48, dbBack)
-  res.status(200).json({user: dbBack})
+  res.status(200).json({ user: dbBack })
 }
 
 // 上传头像
@@ -74,13 +74,10 @@ exports.headimg = async (req, res) => {
   try {
     const fileArr = req.file.originalname.split('.')
     const fileType = fileArr[fileArr.length - 1]
-    await rename(
-      './public/' + req.file.filename,
-      './public/' + req.file.filename + '.' + fileType
-    )
-    res.status(201).json({filepath: req.file.filename + '.' + fileType})
+    await rename('./public/' + req.file.filename, './public/' + req.file.filename + '.' + fileType)
+    res.status(201).json({ filepath: req.file.filename + '.' + fileType })
   } catch (error) {
-    res.status(500).json({error})
+    res.status(500).json({ error })
   }
 }
 
@@ -93,7 +90,7 @@ exports.subscribe = async (req, res) => {
     const channelId = req.params.userId
 
     if (userId === channelId) {
-      return res.status(401).json({err: '不能关注自己'})
+      return res.status(401).json({ err: '不能关注自己' })
     }
 
     // 查询是否已关注
@@ -103,11 +100,11 @@ exports.subscribe = async (req, res) => {
     })
 
     if (record) {
-      return res.status(401).json({err: '你已经关注啦'})
+      return res.status(401).json({ err: '你已经关注啦' })
     } else {
       const channelUser = await User.findById(channelId)
       if (!channelUser) {
-        return res.status(404).json({err: '用户不存在'})
+        return res.status(404).json({ err: '用户不存在' })
       }
       // 新增关注
       await new Subscribe({
@@ -119,11 +116,11 @@ exports.subscribe = async (req, res) => {
       channelUser.subscribeCount++
       await channelUser.save()
 
-      return res.status(200).json({msg: '关注成功'})
+      return res.status(200).json({ msg: '关注成功' })
     }
   } catch (error) {
     const statusCode = error.name === 'ValidationError' ? 422 : 500
-    return res.status(statusCode).json({err: error.message})
+    return res.status(statusCode).json({ err: error.message })
   }
 }
 
@@ -136,7 +133,7 @@ exports.unsubscribe = async (req, res) => {
     const channelId = req.params.userId
 
     if (userId === channelId) {
-      return res.status(401).json({err: '不能取消关注自己'})
+      return res.status(401).json({ err: '不能取消关注自己' })
     }
 
     // 查询是否已取关
@@ -146,24 +143,24 @@ exports.unsubscribe = async (req, res) => {
     })
 
     if (!record) {
-      return res.status(401).json({err: '你已经取消关注啦'})
+      return res.status(401).json({ err: '你已经取消关注啦' })
     } else {
       await record.deleteOne()
-      
+
       const channelUser = await User.findById(channelId)
       if (!channelUser) {
-        return res.status(404).json({err: '用户不存在'})
+        return res.status(404).json({ err: '用户不存在' })
       }
 
       // 关注数量-1
       channelUser.subscribeCount--
       await channelUser.save()
 
-      return res.status(200).json({msg: '取消关注成功'})
+      return res.status(200).json({ msg: '取消关注成功' })
     }
   } catch (error) {
     const statusCode = error.name === 'ValidationError' ? 422 : 500
-    return res.status(statusCode).json({err: error.message})
+    return res.status(statusCode).json({ err: error.message })
   }
 }
 
@@ -175,36 +172,39 @@ exports.getuser = async (req, res) => {
     const channelId = req.params.userId
     let isSubscribe = false
 
-    if (req.user) { // 如果已登录
+    if (req.user) {
+      // 如果已登录
       // 再看是否关注过用户
       const record = await Subscribe.findOne({
         user: String(req.user.userinfo._id),
         channel: channelId
       })
 
-      if (record) { // 关注过
+      if (record) {
+        // 关注过
         isSubscribe = true
       }
     }
     const user = await User.findById(channelId)
     if (!user) {
       return res.status(404).json({ err: '用户不存在' })
-    }    
+    }
     // user.isSubscribe = isSubscribe
 
     return res.status(200).json({
-      ...lodash.pick(user, [ // pick 创建一个从object中选中属性的对象
+      ...lodash.pick(user, [
+        // pick 创建一个从object中选中属性的对象
         '_id',
         'username',
         'image',
         'subscribeCount',
         'cover',
-        'channeldes',
+        'channeldes'
       ]),
       isSubscribe
     })
   } catch (error) {
-    return res.status(500).json({err: error})
+    return res.status(500).json({ err: error })
   }
 }
 
@@ -218,7 +218,7 @@ exports.getsubscribe = async (req, res) => {
 
     return res.status(200).json(subscribeList)
   } catch (error) {
-    return res.status(500).json({err: error})
+    return res.status(500).json({ err: error })
   }
 }
 
@@ -232,6 +232,6 @@ exports.getchannel = async (req, res) => {
 
     return res.status(200).json(channelList)
   } catch (error) {
-    return res.status(500).json({err: error})
+    return res.status(500).json({ err: error })
   }
 }

@@ -2,37 +2,43 @@ const mongoose = require('mongoose')
 // const md5 = require('../util/md5')
 const baseModel = require('./baseModel')
 const videoScheme = new mongoose.Schema({
-  title: { // 视频标题
+  title: {
+    // 视频标题
     type: String,
     required: true
   },
-  description: { // 视频描述
+  description: {
+    // 视频描述
     type: String,
     default: null
   },
-  user: { // 
+  user: {
+    //
     type: mongoose.ObjectId,
     required: true,
     ref: 'User' // 和userModel关联 表示“视频属于哪个用户”
   },
-  cover: { // 视频封面
+  cover: {
+    // 视频封面
     type: String,
     default: null
   },
-  commentCount: { // 视频评论数
+  commentCount: {
+    // 视频评论数
     type: Number,
     default: 0
   },
-  likeCount: { // 视频喜欢数
+  likeCount: {
+    // 视频喜欢数
     type: Number,
     default: 0
   },
-  dislikeCount: { // 视频不喜欢数
+  dislikeCount: {
+    // 视频不喜欢数
     type: Number,
     default: 0
   },
   ...baseModel
-  
 })
 
 module.exports = videoScheme

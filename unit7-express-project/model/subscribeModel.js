@@ -1,12 +1,14 @@
 const mongoose = require('mongoose')
 const baseModel = require('./baseModel')
 const subscribeScheme = new mongoose.Schema({
-  user: { // 发起关注的人 / 粉丝
+  user: {
+    // 发起关注的人 / 粉丝
     type: mongoose.ObjectId,
     required: true,
     ref: 'User'
   },
-  channel: { // 被关注的人 / 频道
+  channel: {
+    // 被关注的人 / 频道
     type: mongoose.ObjectId,
     required: true,
     ref: 'User'
@@ -15,8 +17,6 @@ const subscribeScheme = new mongoose.Schema({
 })
 
 module.exports = subscribeScheme
-
-
 
 // 张三关注了李四
 // {

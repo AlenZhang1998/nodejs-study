@@ -19,9 +19,9 @@ exports.videolist = async (req, res) => {
     const [videolist, total] = await Promise.all([
       Video.find()
         .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
-        .skip(skipCount)   // 再跳过前面不属于当前页的数据
-        .limit(pageSize)   // 再取当前页需要的条数
-        .populate('user'),  // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
+        .skip(skipCount) // 再跳过前面不属于当前页的数据
+        .limit(pageSize) // 再取当前页需要的条数
+        .populate('user'), // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
       Video.countDocuments() // 同时再查一次总数，返回给前端做分页显示
     ])
 
@@ -71,7 +71,6 @@ exports.createVideo = async (req, res) => {
   }
 }
 
-
 // 200 = 成功
 // 201 = 成功并且创建了新资源
 
@@ -108,13 +107,13 @@ exports.commentlist = async (req, res) => {
     const pageNum = getPageParam(req.query.pageNum ?? req.body?.pageNum, 1)
     const pageSize = getPageParam(req.query.pageSize ?? req.body?.pageSize, 10)
     const skipCount = (pageNum - 1) * pageSize
-    
+
     const [commentlist, total] = await Promise.all([
-      Videocomment.find({video: videoId})
+      Videocomment.find({ video: videoId })
         .sort({ _id: -1 }) // 先按 _id 倒序排好 要放在分页前面， 不然数据顺序可能不稳定
-        .skip(skipCount)   // 再跳过前面不属于当前页的数据
-        .limit(pageSize)   // 再取当前页需要的条数
-        .populate('user', '_id username image'),  // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
+        .skip(skipCount) // 再跳过前面不属于当前页的数据
+        .limit(pageSize) // 再取当前页需要的条数
+        .populate('user', '_id username image'), // 自动去 User 模型里把这个 ObjectId 对应的用户信息查出来。
       Videocomment.countDocuments() // 同时再查一次总数，返回给前端做分页显示
     ])
 
@@ -154,7 +153,7 @@ exports.deletecomment = async (req, res) => {
     videoInfo.commentCount--
     await videoInfo.save()
 
-    res.status(200).json({msg: '删除成功'})
+    res.status(200).json({ msg: '删除成功' })
   } catch (error) {
     // const statusCode = error.name === 'ValidationError' ? 422 : 500
     res.status(500).json({ error: error.message })
@@ -178,14 +177,17 @@ exports.likevideo = async (req, res) => {
       video: videoId
     })
     let islike = true
-    if (doc && doc.like === 1) { // 之前点过喜欢
+    if (doc && doc.like === 1) {
+      // 之前点过喜欢
       await doc.deleteOne() // 不能写remove()
       islike = false
-    } else if (doc && doc.like === -1) { // 之前点过不喜欢
+    } else if (doc && doc.like === -1) {
+      // 之前点过不喜欢
       doc.like = 1
       await doc.save()
       islike = true
-    } else { // 首次喜欢
+    } else {
+      // 首次喜欢
       await new Videolike({
         user: userId,
         video: videoId,
@@ -229,14 +231,17 @@ exports.dislikevideo = async (req, res) => {
       video: videoId
     })
     let isdislike = true
-    if (doc && doc.like === -1) { // 之前点过不喜欢
+    if (doc && doc.like === -1) {
+      // 之前点过不喜欢
       await doc.deleteOne() // 不能写remove()
       isdislike = false
-    } else if (doc && doc.like === 1) { // 之前点过喜欢
+    } else if (doc && doc.like === 1) {
+      // 之前点过喜欢
       doc.like = -1
       await doc.save()
       isdislike = true
-    } else { // 首次不喜欢
+    } else {
+      // 首次不喜欢
       await new Videolike({
         user: userId,
         video: videoId,
