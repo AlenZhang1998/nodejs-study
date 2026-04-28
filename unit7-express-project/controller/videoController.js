@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const { Video, Videocomment, Videolike, Subscribe } = require('../model')
+const { Video, Videocomment, Videolike, Subscribe, CollectModel } = require('../model')
 
 const getPageParam = (value, defaultValue) => {
   const parsedValue = Number.parseInt(value, 10)
@@ -88,6 +88,7 @@ exports.video = async (req, res) => {
   }
 }
 
+// 删除视频
 exports.delete = async (req, res) => {
   try {
     const { videoId } = req.params
@@ -355,6 +356,39 @@ exports.likelist = async (req, res) => {
       total,
       totalPages: Math.ceil(total / pageSize)
     })
+  } catch (error) {
+    // const statusCode = error.name === 'ValidationError' ? 422 : 500
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// 收藏视频
+exports.collectVideo = async (req, res) => {
+  try {
+    const { videoId } = req.params
+    const userId = req.user.userinfo._id
+
+    // 查询视频是否存在
+    const videoInfo = await Video.findById(videoId)
+    if (!videoInfo) {
+      return res.status(404).json({ err: '视频不存在' })
+    }
+
+    // 看是否收藏过
+    const doc = await CollectModel.findOne({
+      user: userId,
+      video: videoId
+    })
+    if (doc) {
+      return res.status(403).json({ err: '你已经收藏过啦' })
+    }
+
+    const mycollection = await new CollectModel({
+      user: userId,
+      video: videoId
+    }).save()
+
+    res.status(200).json(mycollection)
   } catch (error) {
     // const statusCode = error.name === 'ValidationError' ? 422 : 500
     res.status(500).json({ error: error.message })

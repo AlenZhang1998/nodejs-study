@@ -28,5 +28,6 @@ router
   .get('/dislike/:videoId', verifyToken(), videoController.dislikevideo) // 不喜欢视频
   .get('/likelist', verifyToken(), videoController.likelist) // 喜欢的视频列表
   .get('/:videoId', verifyToken(false), videoController.video) // 获取视频详情
+  .get('/collect/:videoId', verifyToken(), videoController.collectVideo) // 收藏视频
 
 module.exports = router
