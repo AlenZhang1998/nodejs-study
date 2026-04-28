@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 const { Video, Videocomment, Videolike, Subscribe, CollectModel } = require('../model')
 
+// 热门视频推荐机制
+// 观看+1 点赞+2 评论+2 收藏+3
+const { hotsync } = require('../model/redis/redishotsync')
+
 const getPageParam = (value, defaultValue) => {
   const parsedValue = Number.parseInt(value, 10)
 
@@ -39,7 +43,7 @@ exports.videolist = async (req, res) => {
   }
 }
 
-// 获取视频详情
+// 获取视频详情 观看视频
 exports.video = async (req, res) => {
   // console.log(42,req.params)
   try {
@@ -81,6 +85,8 @@ exports.video = async (req, res) => {
         videoInfo.isSubcribe = true
       }
     }
+    //调用redis加热度
+    await hotsync(videoId, 1)
 
     res.status(200).json(videoInfo)
   } catch (error) {
@@ -156,6 +162,8 @@ exports.comment = async (req, res) => {
     }).save()
     videoInfo.commentCount++
     await videoInfo.save()
+    //调用redis加热度
+    await hotsync(videoId, 2)
 
     res.status(201).json(comment)
   } catch (error) {
@@ -250,6 +258,8 @@ exports.likevideo = async (req, res) => {
       doc.like = 1
       await doc.save()
       islike = true
+      //调用redis加热度
+      await hotsync(videoId, 2)
     } else {
       // 首次喜欢
       await new Videolike({
@@ -257,6 +267,8 @@ exports.likevideo = async (req, res) => {
         video: videoId,
         like: 1
       }).save()
+      //调用redis加热度
+      await hotsync(videoId, 2)
     }
 
     videoInfo.likeCount = await Videolike.countDocuments({
@@ -388,6 +400,10 @@ exports.collectVideo = async (req, res) => {
       video: videoId
     }).save()
 
+    //调用redis加热度
+    if (mycollection) {
+      await hotsync(videoId, 3)
+    }
     res.status(200).json(mycollection)
   } catch (error) {
     // const statusCode = error.name === 'ValidationError' ? 422 : 500
