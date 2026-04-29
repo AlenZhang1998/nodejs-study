@@ -1,6 +1,6 @@
 # Express Video API
 
-> 584 Node.js 工程师养成计划：基于 `Express + MongoDB + Mongoose` 的视频接口练习项目。
+> 慕课网584 Node.js 工程师养成计划：基于 `Express + MongoDB + Mongoose + Redis` 的视频接口练习项目。
 
 ![Node.js](https://img.shields.io/badge/Node.js-runtime-339933?style=flat-square&logo=node.js&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-4.x-000000?style=flat-square&logo=express&logoColor=white)
@@ -11,7 +11,7 @@
 
 `unit7-express-project` 是一个 RESTful 风格的视频服务端 Demo，接口统一挂载在 `/api/v1` 下，默认端口为 `8888`。
 
-当前已覆盖用户注册登录、资料编辑、头像上传、频道关注、视频发布、视频列表、视频详情、评论、点赞、点踩和喜欢列表等核心能力。
+当前已覆盖用户注册登录、资料编辑、头像上传、频道关注、视频发布、视频列表、视频详情、评论、点赞、点踩、喜欢列表、视频收藏和 Redis 热门视频等核心能力。
 
 ```text
 Base URL: http://localhost:8888/api/v1
@@ -24,6 +24,7 @@ Static:   http://localhost:8888/<public-file-name>
 | ---------- | --------------------- |
 | Web 框架   | `express`             |
 | 数据库     | `mongodb`、`mongoose` |
+| 缓存/排行  | `redis`、`ioredis`    |
 | 鉴权       | `jsonwebtoken`        |
 | 参数校验   | `express-validator`   |
 | 文件上传   | `multer`              |
@@ -38,7 +39,7 @@ Static:   http://localhost:8888/<public-file-name>
 npm install
 ```
 
-### 2. 启动 MongoDB
+### 2. 启动 MongoDB 和 Redis
 
 项目默认连接本地 MongoDB：
 
@@ -51,6 +52,20 @@ module.exports.mongopath = 'mongodb://localhost:27017/express-video'
 ```text
 config/config.default.js
 ```
+
+热门视频功能依赖本地 Redis，默认连接：
+
+```text
+127.0.0.1:6379
+```
+
+可以先测试 Redis 是否正常：
+
+```bash
+redis-cli ping
+```
+
+返回 `PONG` 说明 Redis 可用。
 
 ### 3. 启动服务
 
@@ -87,6 +102,8 @@ unit7-express-project
 │   ├── subscribeModel.js        # 关注模型
 │   ├── videocommentModel.js     # 评论模型
 │   ├── videolikeModel.js        # 喜欢/不喜欢模型
+│   ├── collectModel.js          # 收藏模型
+│   ├── redis/                   # Redis 连接与热门视频热度同步
 │   └── index.js                 # Mongoose 连接与模型导出
 ├── public/                      # 静态资源与上传文件
 ├── router/
@@ -140,6 +157,8 @@ Authorization: Bearer <token>
 | 喜欢视频     | `GET`    | `/video/like/:videoId`               | 是   |
 | 不喜欢视频   | `GET`    | `/video/dislike/:videoId`            | 是   |
 | 获取喜欢列表 | `GET`    | `/video/likelist`                    | 是   |
+| 收藏视频     | `GET`    | `/video/collect/:videoId`            | 是   |
+| 获取热门视频 | `GET`    | `/video/gethots/:topnum`             | 否   |
 
 ## 请求示例
 
@@ -269,6 +288,37 @@ Content-Type: application/json
 | --------- | --------------------- |
 | `content` | 必填，长度不能超过 50 |
 
+### 收藏视频
+
+```http
+GET /api/v1/video/collect/:videoId
+Authorization: Bearer <token>
+```
+
+同一个用户不能重复收藏同一个视频。收藏成功后会把该视频的 Redis 热度增加 `3`。
+
+### 获取热门视频
+
+```http
+GET /api/v1/video/gethots/:topnum
+```
+
+`:topnum` 表示返回前多少个热门视频。例如：
+
+```http
+GET /api/v1/video/gethots/10
+```
+
+响应中的 `hotslist` 是一个对象，key 是 `videoId`，value 是热度分数：
+
+```json
+{
+  "hotslist": {
+    "69e872133d91f5e186dc5984": "8"
+  }
+}
+```
+
 ## 分页参数
 
 以下接口支持分页：
@@ -313,8 +363,35 @@ Content-Type: application/json
 | `Subscribe`    | `user`、`channel`                                                                                 | 关注关系                      |
 | `Videocomment` | `content`、`video`、`user`                                                                        | 视频评论                      |
 | `Videolike`    | `user`、`video`、`like`                                                                           | `1` 表示喜欢，`-1` 表示不喜欢 |
+| `CollectModel` | `user`、`video`                                                                                   | 用户收藏的视频                |
 
 所有模型都包含 `baseModel` 中的公共时间字段。
+
+## Redis 热门视频
+
+热门视频使用 Redis 有序集合存储：
+
+```text
+key: videohots
+member: videoId
+score: 热度分数
+```
+
+当前热度规则：
+
+| 行为     | 热度变化 |
+| -------- | -------- |
+| 观看视频 | `+1`     |
+| 点赞视频 | `+2`     |
+| 评论视频 | `+2`     |
+| 收藏视频 | `+3`     |
+
+相关代码：
+
+```text
+model/redis/index.js
+model/redis/redishotsync.js
+```
 
 ## 开发脚本
 
@@ -335,11 +412,13 @@ Content-Type: application/json
 | 频道 | 关注、取消关注、频道信息、关注列表、粉丝列表 |
 | 视频 | 发布、列表、详情、删除                       |
 | 评论 | 添加评论、评论列表、删除评论                 |
-| 互动 | 喜欢、不喜欢、喜欢视频列表                   |
+| 互动 | 喜欢、不喜欢、喜欢视频列表、收藏视频         |
+| 推荐 | Redis 热门视频热度同步、热门视频列表         |
 
 ## 待完善
 
 - `DELETE /api/v1/user/` 当前仍是占位接口，后续需要补充真正的删除逻辑。
 - 部分接口错误响应格式尚未完全统一，可以抽成统一错误处理中间件。
 - `config.default.js` 中的数据库地址和 JWT 密钥目前是固定配置，后续可改为环境变量。
+- Redis 连接地址目前使用 `ioredis` 默认本机配置，后续可改为环境变量。
 - 登录接口当前路由为 `/user/logins`，如果对外发布 API，可考虑统一命名为 `/user/login`。
