@@ -3,7 +3,7 @@ const { Video, Videocomment, Videolike, Subscribe, CollectModel } = require('../
 
 // 热门视频推荐机制
 // 观看+1 点赞+2 评论+2 收藏+3
-const { hotsync } = require('../model/redis/redishotsync')
+const { hotsync, tophots } = require('../model/redis/redishotsync')
 
 const getPageParam = (value, defaultValue) => {
   const parsedValue = Number.parseInt(value, 10)
@@ -407,6 +407,17 @@ exports.collectVideo = async (req, res) => {
     res.status(200).json(mycollection)
   } catch (error) {
     // const statusCode = error.name === 'ValidationError' ? 422 : 500
+    res.status(500).json({ error: error.message })
+  }
+}
+
+// 获取热门视频
+exports.gethots = async (req, res) => {
+  try {
+    const { topnum } = req.params
+    const hotslist = await tophots(topnum)
+    res.status(200).json({ hotslist })
+  } catch (error) {
     res.status(500).json({ error: error.message })
   }
 }

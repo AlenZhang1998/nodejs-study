@@ -29,5 +29,6 @@ router
   .get('/likelist', verifyToken(), videoController.likelist) // 喜欢的视频列表
   .get('/:videoId', verifyToken(false), videoController.video) // 获取视频详情
   .get('/collect/:videoId', verifyToken(), videoController.collectVideo) // 收藏视频
+  .get('/gethots/:topnum', videoController.gethots) // 热门列表
 
 module.exports = router

@@ -1,5 +1,6 @@
 const { redis } = require('./index')
 
+// 增加热度
 exports.hotsync = async (videoId, incNum) => {
   // videoId
   // incNum 热度需要加多少
@@ -15,4 +16,19 @@ exports.hotsync = async (videoId, incNum) => {
     console.log(`第一次记录 ${videoId}，初始热度 ${incNum}`)
   }
   return inc
+}
+
+// 热门视频
+exports.tophots = async (num) => {
+  // num 获取数量
+  const hotsAll = await redis.zrevrange('videohots', 0, -1, 'WITHSCORES') // 先拿到全部的热门视频 0 -1
+  const gethots = hotsAll.slice(0, num * 2)
+  let obj = {}
+  for (let i = 0; i < gethots.length; i++) {
+    if (i % 2 === 0) {
+      obj[gethots[i]] = gethots[i + 1]
+    }
+  }
+  console.log('----', obj)
+  return obj
 }
